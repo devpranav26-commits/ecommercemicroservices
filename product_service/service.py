@@ -2,10 +2,9 @@ from sqlalchemy.orm import Session
 import models
 import repository
 
-# CREATE PRODUCT (Business Logic)
+# CREATE
 def create_product_service(db: Session, name: str, price: float, stock: int):
-    
-    # Validation (Business Rule)
+
     if stock < 0:
         raise Exception("Stock cannot be negative")
 
@@ -21,12 +20,12 @@ def create_product_service(db: Session, name: str, price: float, stock: int):
     return repository.create_product(db, product)
 
 
-# GET ALL PRODUCTS
+# GET ALL
 def get_all_products_service(db: Session):
     return repository.get_all_products(db)
 
 
-# GET PRODUCT BY ID
+# GET BY ID
 def get_product_by_id_service(db: Session, product_id: int):
     product = repository.get_product_by_id(db, product_id)
 
@@ -36,9 +35,9 @@ def get_product_by_id_service(db: Session, product_id: int):
     return product
 
 
-# UPDATE PRODUCT
+# UPDATE
 def update_product_service(db: Session, product_id: int, name: str, price: float, stock: int):
-    
+
     if stock < 0:
         raise Exception("Stock cannot be negative")
 
@@ -50,7 +49,7 @@ def update_product_service(db: Session, product_id: int, name: str, price: float
     return product
 
 
-# DELETE PRODUCT
+# DELETE
 def delete_product_service(db: Session, product_id: int):
     product = repository.delete_product(db, product_id)
 
@@ -58,3 +57,27 @@ def delete_product_service(db: Session, product_id: int):
         raise Exception("Product not found")
 
     return {"message": "Product deleted successfully"}
+
+
+# PAGINATION + STREAMS
+def get_products_paginated_service(db: Session, page: int, size: int, sort_by: str):
+
+    products = repository.get_products_paginated(db, page, size, sort_by)
+
+    # 🔥 Streams equivalent (filter + map)
+
+    # Filter
+    filtered = [p for p in products if p.stock > 0]
+
+    # Transform
+    result = [
+        {
+            "id": p.id,
+            "name": p.name.upper(),
+            "price": p.price,
+            "stock": p.stock
+        }
+        for p in filtered
+    ]
+
+    return result

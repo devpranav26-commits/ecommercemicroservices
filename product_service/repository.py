@@ -8,11 +8,11 @@ def create_product(db: Session, product: Product):
     db.refresh(product)
     return product
 
-# READ ALL
+# GET ALL
 def get_all_products(db: Session):
     return db.query(Product).all()
 
-# READ BY ID
+# GET BY ID
 def get_product_by_id(db: Session, product_id: int):
     return db.query(Product).filter(Product.id == product_id).first()
 
@@ -34,3 +34,21 @@ def delete_product(db: Session, product_id: int):
         db.delete(product)
         db.commit()
     return product
+
+# PAGINATION + SORTING
+def get_products_paginated(db: Session, page: int, size: int, sort_by: str):
+
+    query = db.query(Product)
+
+    if sort_by == "price":
+        query = query.order_by(Product.price)
+    elif sort_by == "name":
+        query = query.order_by(Product.name)
+    elif sort_by == "stock":
+        query = query.order_by(Product.stock)
+    else:
+        query = query.order_by(Product.id)
+
+    offset = (page - 1) * size
+
+    return query.offset(offset).limit(size).all()

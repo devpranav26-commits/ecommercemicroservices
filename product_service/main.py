@@ -18,16 +18,12 @@ def get_db():
     finally:
         db.close()
 
-# ------------------------------
 # ROOT
-# ------------------------------
 @app.get("/")
 def home():
     return {"message": "Product Service Running"}
 
-# ------------------------------
-# CREATE PRODUCT
-# ------------------------------
+# CREATE
 @app.post("/products")
 def create_product(name: str, price: float, stock: int, db: Session = Depends(get_db)):
     try:
@@ -35,16 +31,12 @@ def create_product(name: str, price: float, stock: int, db: Session = Depends(ge
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# ------------------------------
-# GET ALL PRODUCTS
-# ------------------------------
+# GET ALL
 @app.get("/products")
 def get_products(db: Session = Depends(get_db)):
     return service.get_all_products_service(db)
 
-# ------------------------------
-# GET PRODUCT BY ID
-# ------------------------------
+# GET BY ID
 @app.get("/products/{product_id}")
 def get_product(product_id: int, db: Session = Depends(get_db)):
     try:
@@ -52,9 +44,7 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-# ------------------------------
-# UPDATE PRODUCT
-# ------------------------------
+# UPDATE
 @app.put("/products/{product_id}")
 def update_product(product_id: int, name: str, price: float, stock: int, db: Session = Depends(get_db)):
     try:
@@ -62,12 +52,20 @@ def update_product(product_id: int, name: str, price: float, stock: int, db: Ses
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# ------------------------------
-# DELETE PRODUCT
-# ------------------------------
+# DELETE
 @app.delete("/products/{product_id}")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     try:
         return service.delete_product_service(db, product_id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+# PAGINATION + SORTING + STREAMS
+@app.get("/products/paginated")
+def get_products_paginated(
+    page: int = 1,
+    size: int = 5,
+    sort_by: str = "id",
+    db: Session = Depends(get_db)
+):
+    return service.get_products_paginated_service(db, page, size, sort_by)
