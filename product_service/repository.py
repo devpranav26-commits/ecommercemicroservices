@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from models import Product
 
 # CREATE
@@ -52,3 +53,9 @@ def get_products_paginated(db: Session, page: int, size: int, sort_by: str):
     offset = (page - 1) * size
 
     return query.offset(offset).limit(size).all()
+
+# 🔥 NATIVE QUERY
+def get_products_above_price(db: Session, price: float):
+    query = text("SELECT * FROM products WHERE price > :price")
+    result = db.execute(query, {"price": price})
+    return result.fetchall()

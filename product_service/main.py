@@ -5,7 +5,6 @@ from database import engine, SessionLocal, Base
 import models
 import service
 
-# Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -18,7 +17,6 @@ def get_db():
     finally:
         db.close()
 
-# ROOT
 @app.get("/")
 def home():
     return {"message": "Product Service Running"}
@@ -60,12 +58,12 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-# PAGINATION + SORTING + STREAMS
+# PAGINATION
 @app.get("/products/paginated")
-def get_products_paginated(
-    page: int = 1,
-    size: int = 5,
-    sort_by: str = "id",
-    db: Session = Depends(get_db)
-):
+def get_products_paginated(page: int = 1, size: int = 5, sort_by: str = "id", db: Session = Depends(get_db)):
     return service.get_products_paginated_service(db, page, size, sort_by)
+
+# 🔥 NATIVE QUERY API
+@app.get("/products/price-filter")
+def get_products_above_price(price: float, db: Session = Depends(get_db)):
+    return service.get_products_above_price_service(db, price)
